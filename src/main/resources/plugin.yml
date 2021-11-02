@@ -1,0 +1,6 @@
+name: SignInput
+version: '${project.version}'
+main: net.monkeyfunky.devteam.signinput.SignInput
+api-version: 1.17
+authors: [ eight_y_88 ]
+website: https://monkeyfunky.net/
