@@ -12,12 +12,11 @@ import java.util.function.BiConsumer;
 
 public final class SignInput extends JavaPlugin {
     private static SignInput instance;
-    private static HashMap<UUID, BiConsumer<Player, String>> map;
+    private final HashMap<UUID, BiConsumer<Player, String>> map = new HashMap<>();
 
     @Override
     public void onEnable() {
         instance = this;
-        map = new HashMap<>();
         Bukkit.getPluginManager().registerEvents(new EventListener(), this);
     }
 
