@@ -1,6 +1,8 @@
 package net.monkeyfunky.devteam.signinput;
 
 import org.bukkit.Bukkit;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -41,5 +43,14 @@ public final class SignInput extends JavaPlugin {
 
     public BiConsumer<Player, String> getConsumer(Player player) {
         return map.get(player.getUniqueId());
+    }
+
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (command.getName().equalsIgnoreCase("inputdebug") && sender instanceof Player) {
+            input(((Player) sender), "debug", (CommandSender::sendMessage));
+            return true;
+        }
+        return super.onCommand(sender, command, label, args);
     }
 }

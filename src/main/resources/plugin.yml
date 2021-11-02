@@ -4,3 +4,9 @@ main: net.monkeyfunky.devteam.signinput.SignInput
 api-version: 1.17
 authors: [ eight_y_88 ]
 website: https://monkeyfunky.net/
+
+commands:
+  inputdebug:
+    usage: /<command>
+    description: debug command
+    permission: op
