@@ -1,15 +1,45 @@
 package net.monkeyfunky.devteam.signinput;
 
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.HashMap;
+import java.util.UUID;
+import java.util.function.BiConsumer;
+
 public final class SignInput extends JavaPlugin {
+    private static SignInput instance;
+    private static HashMap<UUID, BiConsumer<Player, String>> map;
 
     @Override
     public void onEnable() {
+        instance = this;
+        map = new HashMap<>();
+        Bukkit.getPluginManager().registerEvents(new EventListener(), this);
     }
 
-    @Override
-    public void onDisable() {
+    public static SignInput getInstance() {
+        return instance;
+    }
 
+    public static void input(Player player, String title, BiConsumer<Player, String> consumer) {
+        new InputGUI(title).open(player, consumer);
+    }
+
+    public HashMap<UUID, BiConsumer<Player, String>> getMap() {
+        return map;
+    }
+
+    public void addMap(UUID uuid, BiConsumer<Player, String> consumer) {
+        map.put(uuid, consumer);
+    }
+
+    public void removeMap(UUID uuid) {
+        map.remove(uuid);
+    }
+
+    public BiConsumer<Player, String> getConsumer(Player player) {
+        return map.get(player.getUniqueId());
     }
 }
