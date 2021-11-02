@@ -48,7 +48,7 @@ public final class SignInput extends JavaPlugin {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (command.getName().equalsIgnoreCase("inputdebug") && sender instanceof Player) {
-            input(((Player) sender), "debug", (CommandSender::sendMessage));
+            input(((Player) sender), "ここがタイトル", (CommandSender::sendMessage));
             return true;
         }
         return super.onCommand(sender, command, label, args);
