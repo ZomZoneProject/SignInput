@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>net.monkeyfunky.devteam</groupId>
-    <artifactId>SignInput</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <artifactId>signinput</artifactId>
+    <version>1.0</version>
     <packaging>jar</packaging>
 
     <name>SignInput</name>
@@ -72,4 +72,12 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/zomzoneproject/mvn_repo</url>
+        </repository>
+    </distributionManagement>
 </project>
