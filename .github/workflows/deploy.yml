@@ -3,6 +3,9 @@ on:
   push:
     tags:
       - 'v*'
+  release:
+    types:
+      - created
 
 jobs:
   publish:
