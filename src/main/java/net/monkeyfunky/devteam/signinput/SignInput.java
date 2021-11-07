@@ -47,9 +47,19 @@ public final class SignInput extends JavaPlugin {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (command.getName().equalsIgnoreCase("inputdebug") && sender instanceof Player) {
-            input(((Player) sender), "ここがタイトル", (CommandSender::sendMessage));
+            input(((Player) sender), "ここがタイトル", (Player::sendMessage));
             return true;
         }
-        return super.onCommand(sender, command, label, args);
+        return false;
+    }
+
+    public static String getServerVersion() {
+        String version;
+        try {
+            version = Bukkit.getServer().getClass().getPackage().getName().replace(".",  ",").split(",")[3];
+        } catch (ArrayIndexOutOfBoundsException whatVersionAreYouUsingException) {
+            return "unknown";
+        }
+        return version;
     }
 }

@@ -1,13 +1,12 @@
 package net.monkeyfunky.devteam.signinput;
 
 import com.google.common.base.Preconditions;
-import net.minecraft.server.v1_16_R3.*;
+import net.minecraft.server.v1_16_R3.IChatBaseComponent;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_16_R3.block.CraftSign;
-import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_16_R3.util.CraftMagicNumbers;
 import org.bukkit.entity.Player;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.function.BiConsumer;
 
 /**
@@ -24,26 +23,46 @@ public class InputGUI {
         lines[3] = "----------";
     }
 
+    @SuppressWarnings("all")
     public void open(Player player, BiConsumer<Player, String> consumer) {
-        final BlockPosition blockPosition = new BlockPosition(player.getLocation().getBlockX(), 1, player.getLocation().getBlockZ());
+        try {
+            Class<?> blockPositionClass = Class.forName("net.minecraft.server." + SignInput.getServerVersion() + ".BlockPosition");
+            Class<?> iBlockDataClass = Class.forName("net.minecraft.server." + SignInput.getServerVersion() + ".IBlockData");
+            Object blockPosition = blockPositionClass.getDeclaredConstructor(int.class, int.class, int.class).newInstance(player.getLocation().getBlockX(), 1, player.getLocation().getBlockZ());
 
-        PacketPlayOutBlockChange packet = new PacketPlayOutBlockChange(blockPosition, CraftMagicNumbers.getBlock(Material.OAK_SIGN, (byte) 0));
-        sendPacket(player, packet);
+            Class<?> packetPlayOutBlockChangeClass = Class.forName("net.minecraft.server." + SignInput.getServerVersion() + ".PacketPlayOutBlockChange");
+            Class<?> craftMagicNumbersClass = Class.forName("org.bukkit.craftbukkit." + SignInput.getServerVersion() + ".util.CraftMagicNumbers");
+            Method getBlockMethod = craftMagicNumbersClass.getDeclaredMethod("getBlock", Material.class, byte.class);
+            Object packetPlayOutBlockChange = packetPlayOutBlockChangeClass.getDeclaredConstructor(blockPositionClass, iBlockDataClass).newInstance(blockPosition, getBlockMethod.invoke(null, Material.OAK_SIGN, (byte) 0));
 
-        IChatBaseComponent[] components = CraftSign.sanitizeLines(lines);
-        TileEntitySign sign = new TileEntitySign();
-        sign.setPosition(blockPosition);
-        sign.setColor(EnumColor.BLACK);
+            sendPacket(player, packetPlayOutBlockChange);
 
-        for (int i = 0; i < components.length; i++)
-            sign.a(i, components[i]);
+            Class<?> tileEntityClass = Class.forName("net.minecraft.server." + SignInput.getServerVersion() + ".TileEntity");
+            Class<?> craftSignClass = Class.forName("org.bukkit.craftbukkit." + SignInput.getServerVersion() + ".block.CraftSign");
+            Class<?> tileEntitySignClass = Class.forName("net.minecraft.server." + SignInput.getServerVersion() + ".TileEntitySign");
+            Class<?> iChatComponentClass = Class.forName("net.minecraft.server." + SignInput.getServerVersion() + ".IChatBaseComponent");
+            Method sanitizeLinesMethod = craftSignClass.getDeclaredMethod("sanitizeLines", String[].class);
+            Object[] components = (Object[]) sanitizeLinesMethod.invoke(null, (Object[]) lines);
+            Object tileEntitySign = tileEntitySignClass.getConstructor().newInstance();
 
-        sendPacket(player, sign.getUpdatePacket());
+            Method setPositionMethod = tileEntityClass.getDeclaredMethod("setPosition", blockPositionClass);
+            setPositionMethod.invoke(tileEntitySign, blockPosition);
 
-        PacketPlayOutOpenSignEditor outOpenSignEditor = new PacketPlayOutOpenSignEditor(blockPosition);
-        sendPacket(player, outOpenSignEditor);
+            Method aMethod = tileEntitySignClass.getDeclaredMethod("a", int.class, IChatBaseComponent.class);
+            Field linesField = tileEntitySignClass.getDeclaredField("lines");
+            linesField.set(tileEntitySign, components);
 
-        SignInput.getInstance().addMap(player.getUniqueId(), consumer);
+            Method getUpdatePacketMethod = tileEntitySignClass.getDeclaredMethod("getUpdatePacket");
+            sendPacket(player, getUpdatePacketMethod.invoke(tileEntitySign));
+
+            Class<?> packetPlayOutOpenSignEditorClass = Class.forName("net.minecraft.server." + SignInput.getServerVersion() + ".PacketPlayOutOpenSignEditor");
+            Object packetPlayOutOpenSignEditor = packetPlayOutOpenSignEditorClass.getConstructor(blockPositionClass).newInstance(blockPosition);
+            sendPacket(player, packetPlayOutOpenSignEditor);
+
+            SignInput.getInstance().addMap(player.getUniqueId(), consumer);
+        } catch (ReflectiveOperationException e) {
+            e.printStackTrace();
+        }
     }
 
     public static class Result {
@@ -60,8 +79,21 @@ public class InputGUI {
         }
     }
 
-    private void sendPacket(Player player, Packet<?> packet) {
+    private void sendPacket(Player player, Object packet) {
         Preconditions.checkNotNull(player);
-        ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
+        try {
+            Class<?> packetClass = Class.forName("net.minecraft.server." + SignInput.getServerVersion() + ".Packet");
+            Class<?> playerClass = Class.forName("org.bukkit.craftbukkit." + SignInput.getServerVersion() + ".entity.CraftPlayer");
+            Object craftPlayer = playerClass.cast(player);
+            Object handle = playerClass.getMethod("getHandle").invoke(craftPlayer);
+
+            Field playerConnectionField = handle.getClass().getDeclaredField("playerConnection");
+            Object playerConnection = playerConnectionField.get(handle);
+
+            Method sendPacket = playerConnection.getClass().getDeclaredMethod("sendPacket", packetClass);
+            sendPacket.invoke(playerConnection, packet);
+        } catch (ReflectiveOperationException e) {
+            e.printStackTrace();
+        }
     }
 }
