@@ -6,7 +6,7 @@
 
     <groupId>net.monkeyfunky.devteam</groupId>
     <artifactId>signinput</artifactId>
-    <version>1.0</version>
+    <version>1.0.1</version>
     <packaging>jar</packaging>
 
     <name>SignInput</name>
