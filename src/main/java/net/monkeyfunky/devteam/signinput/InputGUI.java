@@ -1,7 +1,6 @@
 package net.monkeyfunky.devteam.signinput;
 
 import com.google.common.base.Preconditions;
-import net.minecraft.server.v1_16_R3.IChatBaseComponent;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
@@ -41,16 +40,19 @@ public class InputGUI {
             Class<?> craftSignClass = Class.forName("org.bukkit.craftbukkit." + SignInput.getServerVersion() + ".block.CraftSign");
             Class<?> tileEntitySignClass = Class.forName("net.minecraft.server." + SignInput.getServerVersion() + ".TileEntitySign");
             Class<?> iChatComponentClass = Class.forName("net.minecraft.server." + SignInput.getServerVersion() + ".IChatBaseComponent");
-            Method sanitizeLinesMethod = craftSignClass.getDeclaredMethod("sanitizeLines", String[].class);
-            Object[] components = (Object[]) sanitizeLinesMethod.invoke(null, (Object[]) lines);
+            Method sanitizeLinesMethod = craftSignClass.getDeclaredMethod("sanitizeLines", new Class[]{String[].class});
+            sanitizeLinesMethod.setAccessible(true);
+            Object[] strings = new Object[]{lines};
+            Object[] components = (Object[]) sanitizeLinesMethod.invoke(null, strings);
             Object tileEntitySign = tileEntitySignClass.getConstructor().newInstance();
 
             Method setPositionMethod = tileEntityClass.getDeclaredMethod("setPosition", blockPositionClass);
             setPositionMethod.invoke(tileEntitySign, blockPosition);
 
-            Method aMethod = tileEntitySignClass.getDeclaredMethod("a", int.class, IChatBaseComponent.class);
-            Field linesField = tileEntitySignClass.getDeclaredField("lines");
-            linesField.set(tileEntitySign, components);
+            Method aMethod = tileEntitySignClass.getDeclaredMethod("a", int.class, iChatComponentClass);
+            for (int i = 0; i < 4; i++) {
+                aMethod.invoke(tileEntitySign, i, components[i]);
+            }
 
             Method getUpdatePacketMethod = tileEntitySignClass.getDeclaredMethod("getUpdatePacket");
             sendPacket(player, getUpdatePacketMethod.invoke(tileEntitySign));

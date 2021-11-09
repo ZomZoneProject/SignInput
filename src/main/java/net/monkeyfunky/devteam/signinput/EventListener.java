@@ -24,6 +24,7 @@ public class EventListener implements Listener {
             {
                 if (packet.getClass().getName().contains("PacketPlayInUpdateSign") && SignInput.getInstance().getMap().containsKey(player.getUniqueId())) {
                     Field field = packet.getClass().getDeclaredField("b");
+                    field.setAccessible(true);
 
                     String[] strings = (String[]) field.get(packet);
 

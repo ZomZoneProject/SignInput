@@ -67,7 +67,7 @@
     <dependencies>
         <dependency>
             <groupId>org.spigotmc</groupId>
-            <artifactId>spigot</artifactId>
+            <artifactId>spigot-api</artifactId>
             <version>1.16.5-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
@@ -83,7 +83,7 @@
         <repository>
             <id>github</id>
             <name>GitHub Packages</name>
-            <url>https://maven.pkg.github.com/zomzoneproject/mvn_repo</url>
+            <url>https://maven.pkg.github.com/zomzoneproject/repo</url>
         </repository>
     </distributionManagement>
 </project>
